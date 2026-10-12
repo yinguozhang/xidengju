@@ -14,6 +14,10 @@
 
 ## 安装与限制
 
+普通用户请前往[0.8.1 测试版下载页](https://github.com/yinguozhang/xidengju/releases/tag/v0.8.1)，下载附件 APK 后在 Android 手机上安装。已有官方测试版请直接覆盖安装，不要先卸载。
+
+遇到问题可在[Issues](https://github.com/yinguozhang/xidengju/issues)反馈，说明手机型号、Android 版本、应用版本与复现步骤；请勿上传私人日记、账号信息或签名密钥。
+
 APK放GitHub Releases。0.8测试包沿用0.7开发签名，可覆盖安装保留本机数据。不同电脑自行构建的debug签名通常不同，不能直接覆盖发行测试包。
 
 开启通知、准时提醒和所需无障碍服务，在运行保障页完成后台测试。强行停止后必须重新打开。Doze与厂商后台限制影响到达，锁屏和必要应用上仅依赖通知，不能保证覆盖所有系统界面。应用不终止其他应用。参考[Android省电说明](https://developer.android.com/training/monitoring-device-state/doze-standby)。
