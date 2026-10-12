@@ -6,7 +6,9 @@ $classes=Join-Path $PSScriptRoot 'app\build\receiver-tests'
 New-Item -ItemType Directory -Force $classes | Out-Null
 $base=Join-Path $PSScriptRoot 'app\src\main\java\cn\xidengju\app'
 $fakes=@(Get-ChildItem (Join-Path $PSScriptRoot 'tests\fakes') -Recurse -Filter '*.java' | ForEach-Object FullName)
-& "$jdk\javac.exe" -encoding UTF-8 -d $classes "$base\ReminderPlan.java" "$base\NightFlowRules.java" "$base\NightFlow.java" "$base\ReminderReceiver.java" "$base\RestoreReceiver.java" "$base\ReminderLog.java" (Join-Path $PSScriptRoot 'tests\ReminderReceiverTest.java') @fakes
+& "$jdk\javac.exe" -encoding UTF-8 -d $classes "$base\ReminderPlan.java" "$base\NightFlowRules.java" "$base\NightFlow.java" "$base\ReminderReceiver.java" "$base\RestoreReceiver.java" "$base\ReminderLog.java" "$base\SleepRecord.java" "$base\SleepStore.java" (Join-Path $PSScriptRoot 'tests\ReminderReceiverTest.java') (Join-Path $PSScriptRoot 'tests\SleepStoreTest.java') @fakes
 if($LASTEXITCODE -ne 0){throw 'Integration test compilation failed'}
 & "$jdk\java.exe" -cp $classes cn.xidengju.app.ReminderReceiverTest
 if($LASTEXITCODE -ne 0){throw 'Integration tests failed'}
+& "$jdk\java.exe" -cp $classes cn.xidengju.app.SleepStoreTest
+if($LASTEXITCODE -ne 0){throw 'Diary storage tests failed'}

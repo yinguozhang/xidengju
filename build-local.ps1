@@ -36,7 +36,7 @@ $manifest.manifest.SetAttribute('package','cn.xidengju.app')
 $manifest.Save($manifestPath)
 $resources = Join-Path $build 'resources.zip'
 Run "$buildTools\aapt2.exe" @('compile','--dir',(Join-Path $PSScriptRoot 'app\src\main\res'),'-o',$resources)
-Run "$buildTools\aapt2.exe" @('link','-I',$androidJar,'--manifest',$manifestPath,'--min-sdk-version','26','--target-sdk-version','35','--version-code','9','--version-name','0.8.1-dev','-A',(Join-Path $PSScriptRoot 'app\src\main\assets'),'-0','mp3','-o',$unsigned,$resources)
+Run "$buildTools\aapt2.exe" @('link','-I',$androidJar,'--manifest',$manifestPath,'--min-sdk-version','26','--target-sdk-version','35','--version-code','10','--version-name','0.8.2-dev','-A',(Join-Path $PSScriptRoot 'app\src\main\assets'),'-0','mp3','-o',$unsigned,$resources)
 Run "$jdk\bin\jar.exe" @('uf',$unsigned,'-C',$dex,'classes.dex')
 # Windows aapt2 may emit asset entry names with backslashes. Android AssetManager
 # requires forward slashes. Normalize before alignment/signing, storing media raw.
