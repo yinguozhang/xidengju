@@ -1,0 +1,9 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'cn.xidengju.app'
+    compileSdk 35
+    buildToolsVersion '35.0.0'
+    defaultConfig { applicationId 'cn.xidengju.app'; minSdk 26; targetSdk 35; versionCode 9; versionName '0.8.1-dev' }
+    androidResources { noCompress += ['mp3'] }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}

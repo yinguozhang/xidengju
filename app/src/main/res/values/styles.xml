@@ -1,0 +1,12 @@
+<resources>
+    <style name="NightTheme" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#B8D7BD</item>
+        <item name="android:windowBackground">#101923</item>
+        <item name="android:colorBackground">#101923</item>
+        <item name="android:textColorPrimary">#E5ECEB</item>
+        <item name="android:textColorSecondary">#A6B6BD</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">#101923</item>
+    </style>
+</resources>

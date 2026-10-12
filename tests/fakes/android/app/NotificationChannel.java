@@ -1,0 +1,1 @@
+package android.app; public class NotificationChannel {public String id;public int importance;public NotificationChannel(String i,String name,int level){id=i;importance=level;}public int getImportance(){return importance;}}
