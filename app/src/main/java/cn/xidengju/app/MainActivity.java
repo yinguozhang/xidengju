@@ -186,7 +186,7 @@ public class MainActivity extends Activity {
         row("▦","睡前应用名单",selected+" 个娱乐应用 · 随时增减",this::apps);
         section("运行保障");
         row("◇","权限与后台保障",safeguardSummary(),this::safeguards);
-        section("关于");TextView about=text("熄灯局 0.8.1 · 睡眠记录保存在本机\n覆盖安装会保留数据；卸载应用会清除本机记录。\n睡前音乐：Vaporware · The Cynic Project（CC0）",12);about.setPadding(0,dp(4),0,dp(4));
+        section("关于");TextView about=text("熄灯局 0.8.2 · 睡眠记录保存在本机\n覆盖安装会保留数据；卸载应用会清除本机记录。\n睡前音乐：Vaporware · The Cynic Project（CC0）",12);about.setPadding(0,dp(4),0,dp(4));
         row("◇","隐私与数据","权限用途、本机记录和删除方式",this::privacy);
         row("♪","睡前音乐来源","Calm Piano 1 · OpenGameArt",()->startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse("https://opengameart.org/content/calm-piano-1-vaporware"))));
         addBottomNav("settings");
@@ -268,7 +268,7 @@ public class MainActivity extends Activity {
         button("检查提醒权限",this::permissions);
         button("刷新诊断",()->{ReminderReceiver.schedule(this);diagnostics();});
         button("复制诊断文字",()->{
-            String report="熄灯局0.8.1\n"+reminderSummary()+"\n"+diagnosticState()+"\n"+ReminderLog.read(this);
+            String report="熄灯局0.8.2\n"+reminderSummary()+"\n"+diagnosticState()+"\n"+ReminderLog.read(this);
             getSystemService(android.content.ClipboardManager.class).setPrimaryClip(ClipData.newPlainText("熄灯局诊断",report));Toast.makeText(this,"诊断已复制，不包含日记和应用名单",Toast.LENGTH_LONG).show();
         });
         TextView logs=text(ReminderLog.read(this),12);logs.setTextIsSelectable(true);
@@ -464,7 +464,8 @@ public class MainActivity extends Activity {
         }.start();
         button("暂停并返回",()->{timer.cancel();timer=null;ritual();});
     }
-    void diary(){selectedTab="sleep";if(diaryDraft==null)diaryDraft=new SleepDiaryScreen(this);diaryDraft.show();}
+    void diary(){selectedTab="sleep";if(diaryDraft==null||diaryDraft.fromReport())diaryDraft=new SleepDiaryScreen(this);diaryDraft.show();currentScreen="diary";}
+    void diary(LocalDate morning){selectedTab="sleep";if(diaryDraft==null||!diaryDraft.fromReport()||!diaryDraft.isForDate(morning))diaryDraft=new SleepDiaryScreen(this,morning);diaryDraft.show();currentScreen="diary";}
     void savedDiary(){diaryDraft=null;report();}
     void room(){screen("把休息留给自己");selectedTab="home";page.addView(NightUi.art(this,"otter-room.png",300));page.addView(NightUi.art(this,"otter-companion.png",100));text("今晚的小屋，已经安静下来了。",18);text("积分兑换和装饰玩法还在准备中。",14);button("回到首页",this::home);}
     void report(){
@@ -476,15 +477,21 @@ public class MainActivity extends Activity {
         else{text("已记录 "+count+" / 7 晚",22);text("平均睡眠 "+SleepDiaryScreen.duration(Math.round(total/(double)count))+"\n平均效率 "+Math.round(efficiencies/(double)count)+"%",18);}
         text("雾蓝柱形 · 睡眠小时    绿色折线 · 效率%",12);
         page.addView(new WeeklyChart(this,records,first),new LinearLayout.LayoutParams(-1,dp(230)));
-        text("未记录日期留空；平均值仅计算已记录的夜晚。",12);
+        text("未记录日期留空；平均值仅计算已记录的夜晚。点击日期卡片可补填或修改。",12);
         for(int i=6;i>=0;i--){SleepRecord r=records[i];String line=SleepDiaryScreen.date(first.plusDays(i))+"  ·  ";
             if(r==null)line+="未记录";else line+=SleepDiaryScreen.duration(r.sleepMinutes())+"  /  "+r.efficiency()+"%\n闭眼 "+SleepDiaryScreen.time(r.bed.getHour()*60+r.bed.getMinute())+" · 醒来 "+SleepDiaryScreen.time(r.wake.getHour()*60+r.wake.getMinute())+" · 起床 "+SleepDiaryScreen.time(r.rise.getHour()*60+r.rise.getMinute())+"\n"+(r.nap==2?"白天没有补觉":r.nap==0?"补觉 30 分钟以上（含 30 分钟）":"补觉 30 分钟以下");
-            TextView row=text(line,14);row.setBackground(NightUi.round(this,NightUi.CARD,14));row.setPadding(dp(14),dp(14),dp(14),dp(14));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.topMargin=dp(8);row.setLayoutParams(lp);
+            final LocalDate recordDate=first.plusDays(i);
+            LinearLayout card=new LinearLayout(this);card.setOrientation(LinearLayout.VERTICAL);card.setBackground(NightUi.round(this,NightUi.CARD,14));card.setPadding(dp(16),dp(16),dp(16),dp(16));
+            TextView row=NightUi.label(this,line,14);card.addView(row);
+            String action=r==null?"补填日记  ›":"修改日记  ›";
+            TextView entry=NightUi.label(this,action,14);entry.setTextColor(NightUi.GREEN);entry.setPadding(0,dp(12),0,0);card.addView(entry);
+            card.setContentDescription(SleepDiaryScreen.date(recordDate)+"，"+(r==null?"未记录，补填日记":"已记录，修改日记"));card.setOnClickListener(v->diary(recordDate));
+            LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.topMargin=dp(8);page.addView(card,lp);
         }
         button("填写或修改日记",this::diary);button("返回睡眠",this::sleepHub);
     }
     @Override protected void onPause(){super.onPause();flowHandler.removeCallbacks(flowTick);if(timer!=null){timer.cancel();timer=null;audio.stop();interruptedRest=true;getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);}}
     @Override protected void onDestroy(){flowHandler.removeCallbacks(flowTick);if(timer!=null)timer.cancel();if(audio!=null)audio.stop();super.onDestroy();}
     @Override protected void onResume(){super.onResume();ReminderReceiver.schedule(this);flowHandler.removeCallbacks(flowTick);flowHandler.post(flowTick);if(interruptedRest){interruptedRest=false;ritual();Toast.makeText(this,"上次休息已暂停，音乐已停止",Toast.LENGTH_SHORT).show();}else if("home".equals(currentScreen)){if(NightFlow.pending(this))flow();else home();}else if("flow".equals(currentScreen))flow();else if("sleep".equals(currentScreen))sleepHub();else if("settings".equals(currentScreen))settingsHub();else if("plan".equals(currentScreen))planSettings();else if("safeguards".equals(currentScreen))safeguards();else if("permissions".equals(currentScreen))permissions();else if("diagnostics".equals(currentScreen))diagnostics();else if("blocking".equals(currentScreen))blockingSettings();}
-    @Override public void onBackPressed(){if("home".equals(currentScreen))super.onBackPressed();else if("sleep".equals(currentScreen)||"settings".equals(currentScreen))home();else if("sleep".equals(selectedTab))sleepHub();else if("settings".equals(selectedTab))settingsHub();else home();}
+    @Override public void onBackPressed(){if("diary".equals(currentScreen)&&diaryDraft!=null&&diaryDraft.fromReport())report();else if("home".equals(currentScreen))super.onBackPressed();else if("sleep".equals(currentScreen)||"settings".equals(currentScreen))home();else if("sleep".equals(selectedTab))sleepHub();else if("settings".equals(selectedTab))settingsHub();else home();}
 }
